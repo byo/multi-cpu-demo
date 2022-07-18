@@ -1,0 +1,34 @@
+name: Multi-arch test
+on: push
+
+jobs:
+  arch-list:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.get-dist-list.outputs.dist-list }}
+    steps:
+      - uses: actions/setup-go@v3
+      - id: get-dist-list
+        run: |
+          echo "::set-output name=dist-list::$(
+            go tool dist list -json | jq -c '{dist: [ .[] | select(.GOOS=="linux") ]}'
+          )"
+
+  test:
+    runs-on: ubuntu-latest
+    needs: arch-list
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.arch-list.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+      - uses: docker/setup-qemu-action@v2
+      - name: "Build binary for target arch: ${{ matrix.dist.GOARCH }}"
+        run: |
+          export GOOS=linux
+          export GOARCH=${{ matrix.dist.GOARCH }}
+          go build -o hello .
+          file hello
+      - name: Run the binary
+        run: ./hello
