@@ -5,10 +5,13 @@ import (
 	"runtime"
 )
 
+func getOsArch() string {
+	return runtime.GOOS + "/" + runtime.GOARCH
+}
+
 func main() {
 	fmt.Printf(
-		"Hello world from %s/%s!\n",
-		runtime.GOOS,
-		runtime.GOARCH,
+		"Hello world from %s!\n",
+		getOsArch(),
 	)
 }

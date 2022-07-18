@@ -33,11 +33,17 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
       - uses: docker/setup-qemu-action@v2
+      - name: "Test binary for target arch: ${{ matrix.dist.GOARCH }}"
+        run: go test -v .
+        env:
+          GOOS: ${{ matrix.dist.GOOS }}
+          GOARCH: ${{ matrix.dist.GOARCH }}
       - name: "Build binary for target arch: ${{ matrix.dist.GOARCH }}"
         run: |
-          export GOOS=linux
-          export GOARCH=${{ matrix.dist.GOARCH }}
           go build -o hello .
           file hello
+        env:
+          GOOS: ${{ matrix.dist.GOOS }}
+          GOARCH: ${{ matrix.dist.GOARCH }}
       - name: Run the binary
         run: ./hello
