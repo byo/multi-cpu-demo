@@ -11,7 +11,16 @@ jobs:
       - id: get-dist-list
         run: |
           echo "::set-output name=dist-list::$(
-            go tool dist list -json | jq -c '{dist: [ .[] | select(.GOOS=="linux") ]}'
+            go tool dist list -json \
+            | jq -c '{
+                dist: [
+                  .[]
+                  | select(.GOOS=="linux")
+                  | select(.GOARCH!="mips")
+                  | select(.GOARCH!="mipsle")
+                  | select(.GOARCH!="ppc64")
+                ]
+              }'
           )"
 
   test:
